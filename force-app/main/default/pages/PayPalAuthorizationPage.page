@@ -1,0 +1,51 @@
+<apex:page standardController="Client__c" extensions="PayPalController">
+    <apex:form >
+        <apex:pageMessages />
+        <apex:sectionHeader title="PayPal Payment" subtitle="{!Client__c.Name}"/>
+        
+        <!-- Include PayPal SDK with intent=capture -->
+        <script src="https://www.paypal.com/sdk/js?client-id=AY_2g6w36iG8vfA0MVv4XVXx54A3Dxi6uOK6iUrX-Ak2Ec9ySzSz3XLquj3vn14l4APuN5qnWF_oQLLB&intent=capture"></script>
+        
+        <!-- PayPal Button Container -->
+        <div id="paypal-button-container"></div>
+        
+        <script>
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    // Set up the transaction
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: '10.00' // Replace with the actual amount
+                            }
+                        }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    // Capture the funds from the transaction
+                    return actions.order.capture().then(function(details) {
+                        // Show a success message to your buyer
+                        alert('Transaction completed by ' + details.payer.name.given_name);
+                        // Call Apex method to save transaction details
+                        saveTransactionDetails('{!Client__c.Id}', details.id, details.purchase_units[0].amount.value);
+                    });
+                }
+            }).render('#paypal-button-container');
+            
+            function saveTransactionDetails(clientId, transactionId, amount) {
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.PayPalController.saveTransactionDetails}',
+                    clientId, transactionId, amount,
+                    function(result, event) {
+                        if (event.status) {
+                            console.log('Transaction details saved successfully');
+                        } else {
+                            console.error('Error saving transaction details: ' + event.message);
+                        }
+                    },
+                    {escape: false}
+                );
+            }
+        </script>
+    </apex:form>
+</apex:page>

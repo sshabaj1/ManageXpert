@@ -1,0 +1,110 @@
+<apex:page standardController="Client__c" extensions="ProjectReviewController">
+    <style>
+        .card-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            background-color: #f8f8f8;
+            padding: 20px;
+        }
+
+        .card {
+            width: 300px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+            margin: 10px;
+        }
+
+        .card img, .card video {
+            width: 100%;
+            height: auto;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-body h3 {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .card-body p {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .comment-button, .save-comment-button {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .comment-button:hover, .save-comment-button:hover {
+            background-color: #0056b3;
+        }
+
+        .comment-input {
+            width: 70%;
+            height: 60px;
+            margin: 10px;
+        }
+
+        
+
+        .comment-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+    </style>
+
+    <apex:form id="mainForm">
+        <apex:inputHidden value="{!client.Id}" id="clientId"/>
+        <div class="card-container">
+            <apex:repeat value="{!projectWrappers}" var="projectWrapper">
+                <apex:repeat value="{!projectWrapper.contentVersions}" var="contentVersion">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3>{!projectWrapper.project.Name}</h3>
+                            <p>{!contentVersion.Title}</p>
+                        </div>
+                        <div>
+                            <apex:outputPanel rendered="{!contentVersion.FileExtension == 'jpg' || contentVersion.FileExtension == 'png' || contentVersion.FileExtension == 'jpeg'}">
+                                <img src="https://ertadigitalmarketingagency-dev-ed.develop.file.force.com/sfc/servlet.shepherd/version/renditionDownload?rendition=ORIGINAL_Jpg&versionId={!contentVersion.Id}&operationContext=CHATTER&contentId={!contentVersion.ContentBodyId}" alt="{!contentVersion.Title}" />
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!contentVersion.FileExtension == 'mp4'}">
+                                <apex:outputText value="{!'<video controls>' +
+                                                            '<source src=\"/sfc/servlet.shepherd/version/download/' + contentVersion.Id + '\" type=\"video/mp4\" />' +
+                                                            'Your browser does not support the video tag.' +
+                                                        '</video>'}" escape="false"/>
+                            </apex:outputPanel>
+                        </div>
+                    </div>
+                </apex:repeat>
+            </apex:repeat>
+        </div>
+       <div class="comment-section" style="margin-top: 20px; padding: 10px; border-top: 1px solid #ccc; background-color: #f8f8f8;">
+           <div style="width:100%;display: flex;justify-content: center;">
+                   <apex:inputTextarea value="{!commentText}" styleClass="comment-input" style="width: 70%; height: 60px; margin-right: 10px;border-radius: 50px;"/>
+
+           </div>
+           
+           <div style="width:50%;display: flex;justify-content: center;">
+                   <apex:commandButton value="Save Comment" action="{!saveComment}" rerender="mainForm, messages" styleClass="save-comment-button" style="padding: 10px 20px; background-color: #007bff; color: #E08031; border-radius: 5px; border: none; cursor: pointer;"/>
+
+           </div>
+</div>
+        <apex:pageMessages id="messages"/>
+    </apex:form>
+</apex:page>

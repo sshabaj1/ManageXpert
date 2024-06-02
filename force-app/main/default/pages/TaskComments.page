@@ -1,0 +1,97 @@
+<apex:page standardController="Task__c" extensions="TaskCommentsController">
+    <apex:form id="commentsForm">
+        <apex:pageMessages />
+        
+        <apex:pageBlock title="" id="commentsSection">
+            <!-- Section to add a new main comment -->
+            
+
+            <apex:repeat value="{!mainComments}" var="mainComm">
+                <apex:outputPanel layout="block">
+                    <apex:outputPanel rendered="{!NOT(mainComm.editMode) && NOT(mainComm.replyMode)}">
+                        <apex:outputText value="{!mainComm.comment}" />
+                        <br/>
+                        <apex:outputPanel rendered="{!mainComm.editable}">
+                            <apex:commandLink value="Edit" action="{!enableEditMode}" reRender="commentsSection">
+                                <apex:param name="commentId" value="{!mainComm.id}" assignTo="{!commentId}" />
+                            </apex:commandLink>&nbsp;
+                        </apex:outputPanel>
+                        <apex:commandLink value="Reply" action="{!enableReplyMode}" reRender="commentsSection">
+                            <apex:param name="commentId" value="{!mainComm.id}" assignTo="{!commentId}" />
+                        </apex:commandLink>&nbsp;
+                        <apex:outputText value="{!mainComm.lastModifiedDate}" style="font-weight:bold;" />&nbsp;
+                        <apex:outputPanel rendered="{!mainComm.lastModifiedDate != mainComm.createdDate}">
+                            <apex:outputText value="Edited" />&nbsp;
+                        </apex:outputPanel>
+                        <apex:outputText value="-" />&nbsp;
+                        <apex:outputText value="{!mainComm.user}" />&nbsp;
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!mainComm.editMode}">
+                        <apex:inputTextarea value="{!mainComm.comment}" rows="3" cols="40" />
+                        <br/>
+                        <apex:commandButton value="Save" action="{!saveComment}" reRender="commentsSection" />
+                        <apex:commandButton value="Cancel" action="{!cancelEdit}" reRender="commentsSection" />
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!mainComm.replyMode}">
+                        <apex:inputTextarea value="{!replyText}" rows="3" cols="40" />
+                        <br/>
+                        <apex:commandButton value="Reply" action="{!addReply}" reRender="commentsSection, commentsForm" oncomplete="reloadPage()" />
+                        <apex:commandButton value="Cancel" action="{!cancelEdit}" reRender="commentsSection" />
+                        <br/>
+                    </apex:outputPanel>
+                    <br/>
+
+                    <apex:repeat value="{!mainComm.childComments}" var="childComm">
+                        <br/>
+                        <apex:outputPanel layout="block" style="margin-left: 20px;">
+                            <apex:outputPanel rendered="{!NOT(childComm.editMode) && NOT(childComm.replyMode)}">
+                                <apex:outputText value="{!childComm.comment}" />
+                                <br/>
+                                <apex:outputPanel rendered="{!childComm.editable}">
+                                    <apex:commandLink value="Edit" action="{!enableEditMode}" reRender="commentsSection">
+                                        <apex:param name="commentId" value="{!childComm.id}" assignTo="{!commentId}" />
+                                    </apex:commandLink>&nbsp;
+                                </apex:outputPanel>
+                                <apex:commandLink value="Reply" action="{!enableReplyMode}" reRender="commentsSection">
+                                    <apex:param name="commentId" value="{!childComm.id}" assignTo="{!commentId}" />
+                                </apex:commandLink>&nbsp;
+                                <apex:outputText value="{!childComm.createdDate}" style="font-weight:bold;" />&nbsp;
+                                <apex:outputPanel rendered="{!childComm.lastModifiedDate != childComm.createdDate}">
+                                    <apex:outputText value="Edited" />&nbsp;
+                                </apex:outputPanel>
+                                <apex:outputText value="-" />&nbsp;
+                                <apex:outputText value="{!childComm.user}" />&nbsp;
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!childComm.editMode}">
+                                <apex:inputTextarea value="{!childComm.comment}" rows="3" cols="40" />
+                                <br/>
+                                <apex:commandButton value="Save" action="{!saveComment}" reRender="commentsSection" />
+                                <apex:commandButton value="Cancel" action="{!cancelEdit}" reRender="commentsSection" />
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!childComm.replyMode}">
+                                <apex:inputTextarea value="{!replyText}" rows="3" cols="40" />
+                                <br/>
+                                <apex:commandButton value="Reply" action="{!addReply}" reRender="commentsSection, commentsForm" oncomplete="reloadPage()" />
+                                <apex:commandButton value="Cancel" action="{!cancelEdit}" reRender="commentsSection" />
+                            </apex:outputPanel>
+                        </apex:outputPanel>
+                    </apex:repeat>
+                </apex:outputPanel>
+                <br/>
+            </apex:repeat>
+
+            <apex:pageBlockSection title="Add Comment" columns="1">
+                <apex:inputTextarea value="{!newCommentText}" rows="3" cols="40" />
+                <br/>
+                <apex:commandButton value="Add Comment" action="{!addNewComment}" reRender="commentsSection, commentsForm" oncomplete="reloadPage()" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+
+    <!-- JavaScript to reload the page -->
+    <script>
+        function reloadPage() {
+            window.location.reload();
+        }
+    </script>
+</apex:page>

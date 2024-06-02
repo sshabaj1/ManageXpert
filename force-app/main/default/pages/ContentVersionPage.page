@@ -1,0 +1,50 @@
+<apex:page standardController="ContentVersion" extensions="ContentPageController">
+    <style>
+        .content-container {
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .content-container img, .content-container video {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            margin: 20px 0;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <div class="content-container">
+        <apex:outputText value="Content Version ID: {!contentVersion.Id}"/>
+        <apex:outputText value="Title: {!contentVersion.Title}"/>
+        <apex:outputText value="File Extension: {!contentVersion.FileExtension}"/>
+        <apex:outputPanel rendered="{!contentVersion.FileExtension == 'jpg' || contentVersion.FileExtension == 'png' || contentVersion.FileExtension == 'jpeg'}">
+            <img src="/sfc/servlet.shepherd/version/renditionDownload?rendition=ORIGINAL_Jpeg&versionId={!contentVersion.Id}" alt="{!contentVersion.Title}" />
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!contentVersion.FileExtension == 'mp4'}">
+            <apex:outputText value="{!'<video controls>' +
+                                    '<source src=\"/sfc/servlet.shepherd/version/download/' + contentVersion.Id + '\" type=\"video/mp4\" />' +
+                                    'Your browser does not support the video tag.' +
+                                '</video>'}" escape="false"/>
+        </apex:outputPanel>
+        <apex:form >
+            <apex:commandButton value="Back" action="{!goBack}" styleClass="back-button" />
+        </apex:form>
+    </div>
+</apex:page>
